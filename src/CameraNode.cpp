@@ -419,7 +419,7 @@ CameraNode::declareParameters()
 
     // clamp default ControlValue to min/max range and cast ParameterValue
     const rclcpp::ParameterValue value =
-      cv_to_pv(clamp(info.def(), info.min(), info.max()), extent);
+      cv_to_pv(clamp(info.def(), info.min(), info.max()));
 
     // get smallest bounds for minimum and maximum set
     rcl_interfaces::msg::IntegerRange range_int;
