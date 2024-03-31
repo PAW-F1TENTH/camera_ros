@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: install ROS2 ${{ matrix.distribution }}
-        uses: ros-tooling/setup-ros@v0.7
+        uses: ros-tooling/setup-ros@master
 
       - name: build and test
         uses: ros-tooling/action-ros-ci@v0.3
