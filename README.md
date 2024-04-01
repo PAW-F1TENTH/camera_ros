@@ -102,9 +102,8 @@ Each stream role only supports a discrete set of data stream configurations as a
 
 By default, the node will select the first camera it finds and configures it with the default pixel format and image resolution. If a parameter has not been set, the node will print the available options and inform the user about the default choice.
 
-#### pixel format
+The node avoids memory copies of the image data by directly mapping from a camera pixel format to a ROS image format, with the exception of converting between "raw" and "compressed" image formats when requested by the user. As an effect, not all pixel formats that are supported by the camera may be supported by the ROS image message. Hence, the options for `format` are limited to pixel formats that are supported by the camera and the raw ROS image message.
 
-NOTE on pixel formats and conversion
 
 ### Dynamic Frame Configuration (controls)
 
@@ -115,7 +114,24 @@ The dynamic parameters are created at runtime when the node starts by inspecting
 NOTE no parameter for framerate, needs to be set via frame timing in dynamic params
 
 
-## FAQ
+## FAQ & Trouble Shooting
 
-Q: `Failed to allocate buffers`
-A:
+### Reporting bugs
+
+```sh
+colcon build --cmake-args -DCMAKE_BUILD_TYPE=Debug
+```
+
+```sh
+export LIBCAMERA_LOG_LEVELS=*:DEBUG
+ros2 run --prefix 'gdb -ex run --args' camera_ros camera_node --ros-args -p width:=160 -p height:=120
+```
+
+
+### Q&A
+
+Q1: The node exits with `no cameras available`.
+> A1: Check your camera connection and test with the libcamera examples that the camera is supported and accessible.
+
+Q2: The node exits with `Failed to allocate buffers`.
+> A2: The requested image size and pixel format may be too large. Set `width` and `height` to a lower resolution or chose a compressed pixel format.
