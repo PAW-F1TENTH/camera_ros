@@ -54,8 +54,68 @@ colcon build
 
 If you installed libcamera externally, you can omit the `colcon-meson` and `libcamera` part. Additionally, if there is a binary package and a rosdep entry for libcamera (check with `rosdep resolve libcamera`) you can also omit `--skip-keys=libcamera` and have this binary dependency resolved automatically.
 
-## Usage
+## Launching the Node
 
-### Node
+The package provides a standalone node executable
+```sh
+ros2 run camera_ros camera_node
+```
+and a composable node (`camera::CameraNode`):
+```sh
+ros2 component standalone camera_ros camera::CameraNode
+```
 
-### Parameters
+## Parameters
+
+The node provides two sets of parameters:
+1. static read-only parameters to configure the camera stream once at the beginning
+2. dynamic parameters which are generated from the camera controls to change per-frame settings and which can be changed at runtime
+
+Those parameters can be set on the command line:
+```sh
+# standalone executable
+ros2 run camera_ros camera_node --ros-args -p param1:=arg1 -p param2:=arg2
+# composable node
+ros2 component standalone camera_ros camera::CameraNode -p param1:=arg1 -p param2:=arg2
+```
+or dynamically via the [ROS parameter API](https://docs.ros.org/en/rolling/Concepts/Basic/About-Parameters.html).
+
+### Static Camera Stream Configuration
+
+The camera stream is configured once when the node starts via the following static read-only parameters:
+
+| name              | type                  | description |
+| ----------------- | --------------------- |  ---------- |
+| `camera`          | `integer` or `string` | selects the camera by index (e.g. `0`) or by name (e.g. `/base/soc/i2c0mux/i2c@1/ov5647@36`) [default: `0`]
+| `role`            | `string`              | configures the camera with a `StreamRole` (possible choices: `raw`, `still`, `video`, `viewfinder`) [default: `video`]
+| `format`          | `string`              | a `PixelFormat` that is supported by the camera [default: auto]
+| `width`, `height` | `integer`             | desired image resolution [default: auto]
+
+
+The configuration is done in the following order:
+1. select camera via `camera`
+2. configure camera stream via `role`
+3. set the pixel format for the stream via `format`
+4. set the image resolution for the stream via `width` and `height`
+
+Each stream role only supports a discrete set of data stream configurations as a combination of the image resolution and pixel format. The selected stream configuration is validated at the end of this sequence and adjusted to the closest valid stream configuration.
+
+By default, the node will select the first camera it finds and configures it with the default pixel format and image resolution. If a parameter has not been set, the node will print the available options and inform the user about the default choice.
+
+#### pixel format
+
+NOTE on pixel formats and conversion
+
+### Dynamic Frame Configuration (controls)
+
+The dynamic parameters are created at runtime when the node starts by inspecting the
+
+#### framerate
+
+NOTE no parameter for framerate, needs to be set via frame timing in dynamic params
+
+
+## FAQ
+
+Q: `Failed to allocate buffers`
+A:
