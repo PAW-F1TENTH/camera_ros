@@ -565,7 +565,7 @@ CameraNode::requestComplete(libcamera::Request *request)
     // send image data
     std_msgs::msg::Header hdr;
     hdr.stamp = rclcpp::Time(time_offset + int64_t(metadata.timestamp));
-    hdr.frame_id = "camera";
+    hdr.frame_id = "ego_racecar/camera";
     const libcamera::StreamConfiguration &cfg = stream->configuration();
 
     auto msg_img = std::make_unique<sensor_msgs::msg::Image>();
