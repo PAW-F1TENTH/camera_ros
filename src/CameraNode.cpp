@@ -14,7 +14,7 @@
 #include <cerrno>
 #include <cstdint>
 #include <cstring>
-#include <cv_bridge/cv_bridge.h>
+#include <cv_bridge/cv_bridge.hpp>
 #include <functional>
 #include <iostream>
 #include <libcamera/base/shared_fd.h>
@@ -46,7 +46,7 @@
 #include <rclcpp/parameter.hpp>
 #include <rclcpp/parameter_value.hpp>
 #include <rclcpp/publisher.hpp>
-#include <rclcpp/qos_event.hpp>
+#include <rclcpp/event_handler.hpp>
 #include <rclcpp/time.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <sensor_msgs/image_encodings.hpp>
@@ -411,6 +411,11 @@ CameraNode::declareParameters()
   // dynamic camera configuration
   ParameterMap parameters_init;
   for (const auto &[id, info] : camera->controls()) {
+    
+    // skip paramter with dynamic extending paramters to avoid adressing issues
+    if (id->name() == "AfWindows")
+      continue;
+
     // store control id with name
     parameter_ids[id->name()] = id;
 
